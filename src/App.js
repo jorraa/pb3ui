@@ -27,8 +27,8 @@ const App = () => {
   const addPerson = (event) => {    
     event.preventDefault()   
     // no empty name, must be 2 long
-    if(!newName || newName.length < 2) {
-      setErrorMessage('name missing, minimum length is 2')
+    if(!newName) {
+      setErrorMessage('name missing')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -37,13 +37,6 @@ const App = () => {
     // no empty number
     if(!newNumber){
       setErrorMessage('number missing')
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-      return
-    }
-    if(newNumber.length>20){
-      setErrorMessage('number too long, max length 20')
       setTimeout(() => {
         setErrorMessage(null)
       }, 5000)
@@ -87,6 +80,13 @@ console.log("normalCreate")
       .create(personObject)
       .then(returnedPerson => {
         console.log('retPers', returnedPerson)
+        if(returnedPerson.error) {
+          setErrorMessage(returnedPerson.error)
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 8000)
+          return
+        }
         setPersons(persons.concat(returnedPerson))
         // eslint-disable-next-line no-undef
         setInfoMessage(`${returnedPerson.name} added to phonebook!`)
