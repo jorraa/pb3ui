@@ -5,7 +5,7 @@ const Person = (props) => {
         // eslint-disable-next-line no-restricted-globals
         const ok = confirm('Delete ' + event.target.name + '?')
         if(ok){ 
-            props.handleDelete(parseInt(event.target.id)) //id was string
+            props.handleDelete(event.target.id)
         }
     }
     

@@ -26,15 +26,35 @@ const App = () => {
   
   const addPerson = (event) => {    
     event.preventDefault()   
-    // no empty name
-    if(!newName || newName.length === 0) return
-
+    // no empty name, must be 2 long
+    if(!newName || newName.length < 2) {
+      setErrorMessage('name missing, minimum length is 2')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      return
+    }
+    // no empty number
+    if(!newNumber){
+      setErrorMessage('number missing')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      return
+    }
+    if(newNumber.length>20){
+      setErrorMessage('number too long, max length 20')
+      setTimeout(() => {
+        setErrorMessage(null)
+      }, 5000)
+      return
+    }
+    
     const personObject = {
       name: newName,
       number: newNumber,
       date: new Date().toISOString()
     }
-
     if(persons.filter(person => person.name === newName).length){
       //first chnage number if person exists
 
@@ -62,6 +82,7 @@ const App = () => {
         }, 5000)
       })
     }else{ //normal create
+console.log("normalCreate")      
       personService
       .create(personObject)
       .then(returnedPerson => {
@@ -73,8 +94,8 @@ const App = () => {
           setInfoMessage(null)
         }, 3000)
       })
-      .catch(error => {
-        console.log("Error in create", error.message)
+      .catch((error) => {
+        console.log("Error in create", error)
         setErrorMessage("Adding new number failed!")
         setTimeout(() => {
           setErrorMessage(null)
@@ -86,6 +107,7 @@ const App = () => {
   }
   
   const handleDelete = id => {
+console.log("handleDelete", id)    
     const removedPerson = persons.filter(person => person.id === id)[0]
     personService.remove(id)
     .then( () => {
@@ -125,6 +147,7 @@ const App = () => {
       ?persons.filter(person => person.name.toLowerCase().includes(newFilter.toLowerCase()))
       :persons
 console.log("persons", persons)
+
   return (
     <div>
       <h2>Phonebook</h2>

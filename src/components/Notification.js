@@ -4,7 +4,7 @@ const Notification = ({ message ,className}) => {
   if (message === null) {
     return null
   }
-console.log("className", className)
+
   return (
     <div className={className}>
       {message}
