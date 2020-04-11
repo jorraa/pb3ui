@@ -12,7 +12,7 @@ const App = () => {
   const [ newFilter, setNewFilter ] = useState('')
   const [errorMessage, setErrorMessage] = useState(null)
   const [infoMessage, setInfoMessage] = useState(null)
-  
+
   useEffect(() => {
     personService
       .getAll()
@@ -23,9 +23,9 @@ const App = () => {
 
   //Useless after asking confirm
   //const alertDuplicate= (newName) => alert(`${newName} is already added to phonebook`)
-  
-  const addPerson = (event) => {    
-    event.preventDefault()   
+
+  const addPerson = (event) => {
+    event.preventDefault()
     // no empty name, must be 2 long
     if(!newName) {
       setErrorMessage('name missing')
@@ -42,7 +42,7 @@ const App = () => {
       }, 5000)
       return
     }
-    
+
     const personObject = {
       name: newName,
       number: newNumber,
@@ -53,100 +53,99 @@ const App = () => {
 
       // eslint-disable-next-line no-restricted-globals
       const ok = confirm(newName + ' is already added to phonebook, replace the old number with new one?')
-      if(!ok){ 
-          return
-      } 
+      if(!ok){ return }
       const person = persons.filter(person => person.name === newName)[0]
 
       personService.update(person.id, personObject)
-      .then(returnedPerson => {
-        setPersons(persons.filter(person => person.name !== newName).concat(returnedPerson))
+        .then(returnedPerson => {
+          setPersons(persons.filter(person => person.name !== newName).concat(returnedPerson))
+          // eslint-disable-next-line no-undef
+          setInfoMessage(`${returnedPerson.name}'s number changed in phonebook!`)
+          setTimeout(() => {
+            setInfoMessage(null)
+          }, 3000)
+        })
+        .catch(() => {
+          setErrorMessage(`Information of ${person.name} has already been removed from server`)
+          setPersons(persons.filter(p => p.id !== person.id))
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+        })
+    }else{ //normal create
+      console.log('normalCreate')
+      personService
+        .create(personObject)
+        .then(returnedPerson => {
+          console.log('retPers', returnedPerson)
+          if(returnedPerson.error) {
+            setErrorMessage(returnedPerson.error)
+            setTimeout(() => {
+              setErrorMessage(null)
+            }, 8000)
+            return
+          }
+          setPersons(persons.concat(returnedPerson))
+          // eslint-disable-next-line no-undef
+          setInfoMessage(`${returnedPerson.name} added to phonebook!`)
+          setTimeout(() => {
+            setInfoMessage(null)
+          }, 3000)
+        })
+        .catch((error) => {
+          console.log('Error in create', error)
+          setErrorMessage('Adding new number failed!')
+          setTimeout(() => {
+            setErrorMessage(null)
+          }, 5000)
+        })
+    }
+    setNewName('')
+    setNewNumber('')
+  }
+
+  const handleDelete = id => {
+    console.log('handleDelete', id)
+    const removedPerson = persons.filter(person => person.id === id)[0]
+    personService.remove(id)
+      .then( () => {
+        setPersons(persons.filter(person => person.id !== id))
         // eslint-disable-next-line no-undef
-        setInfoMessage(`${returnedPerson.name}'s number changed in phonebook!`)
+        setInfoMessage(`${removedPerson.name} removed from phonebook!`)
         setTimeout(() => {
           setInfoMessage(null)
         }, 3000)
       })
       .catch(error => {
-        setErrorMessage(`Information of ${person.name} has already been removed from server`)
-        setPersons(persons.filter(p => p.id !== person.id))
-        setTimeout(() => {
-          setErrorMessage(null)
-        }, 5000)
-      })
-    }else{ //normal create
-console.log("normalCreate")      
-      personService
-      .create(personObject)
-      .then(returnedPerson => {
-        console.log('retPers', returnedPerson)
-        if(returnedPerson.error) {
-          setErrorMessage(returnedPerson.error)
-          setTimeout(() => {
-            setErrorMessage(null)
-          }, 8000)
-          return
+        console.log('error in delete', error.message)
+        if(error.message.includes('404')){
+          setErrorMessage(`Information of ${removedPerson.name} has already been removed from server`)
+          setPersons(persons.filter(person => person.id !== id))
+        }else{
+          setErrorMessage(`Removing ${removedPerson.name} from phonebook failed!`)
         }
-        setPersons(persons.concat(returnedPerson))
-        // eslint-disable-next-line no-undef
-        setInfoMessage(`${returnedPerson.name} added to phonebook!`)
-        setTimeout(() => {
-          setInfoMessage(null)
-        }, 3000)
-      })
-      .catch((error) => {
-        console.log("Error in create", error)
-        setErrorMessage("Adding new number failed!")
         setTimeout(() => {
           setErrorMessage(null)
         }, 5000)
       })
-    }
-    setNewName('')
-    setNewNumber('')
-  }
-  
-  const handleDelete = id => {
-console.log("handleDelete", id)    
-    const removedPerson = persons.filter(person => person.id === id)[0]
-    personService.remove(id)
-    .then( () => {
-      setPersons(persons.filter(person => person.id !== id))
-      // eslint-disable-next-line no-undef
-      setInfoMessage(`${removedPerson.name} removed from phonebook!`)
-      setTimeout(() => {
-        setInfoMessage(null)
-      }, 3000)
-    })  
-    .catch(error => {
-      console.log("error in delete", error.message)
-      if(error.message.includes('404')){
-        setErrorMessage(`Information of ${removedPerson.name} has already been removed from server`)
-        setPersons(persons.filter(person => person.id !== id))
-      }else{
-        setErrorMessage(`Removing ${removedPerson.name} from phonebook failed!`)
-      }
-      setTimeout(() => {
-        setErrorMessage(null)
-      }, 5000)
-    })
   }
 
-  const handleNameChange = (event) => {    
-    setNewName(event.target.value)  
+  const handleNameChange = (event) => {
+    setNewName(event.target.value)
   }
-  const handleNumberChange = (event) => {    
-    setNewNumber(event.target.value)  
+  const handleNumberChange = (event) => {
+    setNewNumber(event.target.value)
   }
-  const handleFilterChange = (event) => {    
-    setNewFilter(event.target.value)  
+  const handleFilterChange = (event) => {
+    setNewFilter(event.target.value)
   }
 
   const personsToShow = newFilter =>
     newFilter.length
       ?persons.filter(person => person.name.toLowerCase().includes(newFilter.toLowerCase()))
       :persons
-console.log("persons", persons)
+
+  console.log('persons', persons)
 
   return (
     <div>
