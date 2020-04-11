@@ -21,9 +21,7 @@ const Person = (props) => {
 }
 
 Person.propTypes = {
-  person: PropTypes.object.func(person => {
-    typeof person.id === 'string'
-  }).isRequired,
+  person: PropTypes.object.isRequired,
   text: PropTypes.string.isRequired,
   handleDelete: PropTypes.func.isRequired
 }

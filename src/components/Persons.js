@@ -11,10 +11,8 @@ const Persons = (props) =>
   </ul>
 
 Persons.propTypes = {
-  newFilter: PropTypes.string.isRequired,
-  person: PropTypes.object.func(person => {
-    typeof person.id === 'string'
-  }).isRequired,
+  newFilter: PropTypes.string,
+  person: PropTypes.object,
   personsToShow: PropTypes.func.isRequired,
   handleDelete: PropTypes.func.isRequired,
 }
